@@ -1,5 +1,7 @@
 package com.challenge.paymengateway.application.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -7,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.challenge.paymengateway.application.dto.UserCreateDTO;
 import com.challenge.paymengateway.application.dto.UserResponseDTO;
+import com.challenge.paymengateway.application.model.Account;
 import com.challenge.paymengateway.application.model.User;
+import com.challenge.paymengateway.application.repository.AccountRepository;
 import com.challenge.paymengateway.application.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -15,10 +19,12 @@ import jakarta.transaction.Transactional;
 @Service
 public class UserService {
   private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final BCryptPasswordEncoder passwordEncoder;
   
-  public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+  public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, AccountRepository accountRepository) {
     this.userRepository = userRepository;
+    this.accountRepository = accountRepository;
     this.passwordEncoder = passwordEncoder;
   }
   
@@ -37,8 +43,15 @@ public class UserService {
     user.setCpf(dto.getCpf());
     user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-    User saved = userRepository.save(user);
-    return new UserResponseDTO(saved.getId(), saved.getName(), saved.getEmail(), saved.getCpf());
+    User savedUser = userRepository.save(user);
+
+    Account account = new Account();
+    account.setUser(savedUser);
+    account.setBalance(BigDecimal.ZERO.setScale(4, RoundingMode.HALF_EVEN));
+
+    accountRepository.save(account);
+
+    return new UserResponseDTO(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), savedUser.getCpf());
   }
 
   public List<User> listAll() {
