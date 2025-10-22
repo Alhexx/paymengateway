@@ -9,3 +9,26 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: paymentgateway
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - spring_network
+
+  app:
+    build: .
+    container_name: spring_app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+    networks:
+      - spring_network
+
+volumes:
+  db_data:
+
+networks:
+  spring_network:
+    driver: bridge
