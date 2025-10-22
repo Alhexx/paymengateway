@@ -1,6 +1,5 @@
 package com.challenge.paymengateway.config.security;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
   }
 
   @Override
-  public UserDetails loadUserByUsername(String usernameOrCpf) throws UsernameNotFoundException {
+  public UserDetailsImpl loadUserByUsername(String usernameOrCpf) throws UsernameNotFoundException {
     return userRepository.findByEmail(usernameOrCpf)
       .or(() -> userRepository.findByCpf(usernameOrCpf))
       .map(UserDetailsImpl::new)

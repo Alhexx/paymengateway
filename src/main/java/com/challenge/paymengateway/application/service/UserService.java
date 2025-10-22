@@ -13,6 +13,7 @@ import com.challenge.paymengateway.application.model.Account;
 import com.challenge.paymengateway.application.model.User;
 import com.challenge.paymengateway.application.repository.AccountRepository;
 import com.challenge.paymengateway.application.repository.UserRepository;
+import com.challenge.paymengateway.common.utils.CPFUtils;
 
 import jakarta.transaction.Transactional;
 
@@ -40,7 +41,14 @@ public class UserService {
     User user = new User();
     user.setName(dto.getName());
     user.setEmail(dto.getEmail());
-    user.setCpf(dto.getCpf());
+
+    String stripped_cpf = dto.getCpf().replaceAll("\\D", "");
+
+    if (!CPFUtils.isValidCPF(stripped_cpf)) {
+        throw new IllegalArgumentException("CPF inválido");
+    }
+
+    user.setCpf(stripped_cpf);
     user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
     User savedUser = userRepository.save(user);
