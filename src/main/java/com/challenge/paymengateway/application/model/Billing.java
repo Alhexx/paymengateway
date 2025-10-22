@@ -28,8 +28,8 @@ public class Billing {
   private User sender;
 
   @ManyToOne
-  @JoinColumn(name = "reciever_id", referencedColumnName = "id" , nullable = false)
-  private User reciever;
+  @JoinColumn(name = "receiver_id", referencedColumnName = "id" , nullable = false)
+  private User receiver;
 
   @Column(nullable = false, precision = 19, scale = 4)
   private BigDecimal value;
@@ -60,12 +60,12 @@ public class Billing {
     this.sender = sender;
   }
 
-  public User getReciever() {
-    return reciever;
+  public User getReceiver() {
+    return receiver;
   }
 
-  public void setReciever(User reciever) {
-    this.reciever = reciever;
+  public void setReceiver(User receiver) {
+    this.receiver = receiver;
   }
 
   public BigDecimal getValue() {

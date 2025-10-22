@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.challenge.paymengateway.application.dto.BillingRequestDTO;
 import com.challenge.paymengateway.application.dto.BillingResponseDTO;
+import com.challenge.paymengateway.application.dto.CancelResponseDTO;
 import com.challenge.paymengateway.application.dto.PaymentRequestDTO;
 import com.challenge.paymengateway.application.dto.PaymentResponseDTO;
 import com.challenge.paymengateway.application.service.BillingService;
@@ -48,7 +50,7 @@ public class BillingController {
       return ResponseEntity.ok(billings);
   }
 
-  @GetMapping("/reciever")
+  @GetMapping("/receiver")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<List<BillingResponseDTO>> getRecievedBills(@AuthenticationPrincipal UserDetailsImpl user, @RequestParam(required = false) StatusCobranca status) {
       List<BillingResponseDTO> billings = billingService.getBillingByUserId(user.getId(), status, false);
@@ -68,4 +70,11 @@ public class BillingController {
 
       return ResponseEntity.ok(paymentResponseDTO);
   }
+
+  @GetMapping("/{billing_id}/cancel")
+  @SecurityRequirement(name = "bearerAuth")
+  public ResponseEntity<CancelResponseDTO> getMethodName(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("billing_id") Integer billingId) {
+      return ResponseEntity.ok(billingService.cancelBilling(user.getId(), billingId));
+  }
+  
 }

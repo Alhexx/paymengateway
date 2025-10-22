@@ -11,7 +11,7 @@ public record BillingRequestDTO(
     BigDecimal value,
 
     @NotNull(message = "O CPF do destinatário é obrigatório")
-    String recieverCPF,
+    String receiverCPF,
 
     @NotNull(message = "Descrição breve da cobrança é obrigatória")
     String description

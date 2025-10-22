@@ -24,8 +24,8 @@ public interface BillingRepository extends JpaRepository<Billing, Integer> {
 
   @Query("""
            SELECT b FROM Billing b 
-           WHERE b.reciever.id = :recieverId
+           WHERE b.receiver.id = :receiverId
            AND (:status IS NULL OR b.status = :status)
         """)
-  Optional<List<Billing>> findByRecieverIdAndStatusOptional(@Param("recieverId") Integer recieverId, @Param("status") StatusCobranca status);
+  Optional<List<Billing>> findByReceiverIdAndStatusOptional(@Param("receiverId") Integer receiverId, @Param("status") StatusCobranca status);
 }

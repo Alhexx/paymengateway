@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.challenge.paymengateway.application.dto.BillingRequestDTO;
 import com.challenge.paymengateway.application.dto.BillingResponseDTO;
+import com.challenge.paymengateway.application.dto.CancelResponseDTO;
 import com.challenge.paymengateway.application.dto.PaymentRequestDTO;
 import com.challenge.paymengateway.application.dto.PaymentResponseDTO;
 import com.challenge.paymengateway.application.model.Account;
@@ -46,18 +47,18 @@ public class BillingService {
     User sender = userRepository.findById(userId).orElseThrow(() -> 
                                               new EntityNotFoundException("Usuário não encontrado com ID: " + userId
                                             ));
-    User reciever = userRepository.findByCpf(billingRequestDTO.recieverCPF()).orElseThrow(() -> 
-                                              new EntityNotFoundException("Conta não encontrada para o CPF: " + billingRequestDTO.recieverCPF()
+    User receiver = userRepository.findByCpf(billingRequestDTO.receiverCPF()).orElseThrow(() -> 
+                                              new EntityNotFoundException("Conta não encontrada para o CPF: " + billingRequestDTO.receiverCPF()
                                             ));
 
-    if (sender.getId().equals(reciever.getId())) {
+    if (sender.getId().equals(receiver.getId())) {
       throw new IllegalArgumentException("O remetente e o destinatário não podem ser a mesma pessoa.");
     }                                        
 
     Billing billing = new Billing();
     billing.setDescription(billingRequestDTO.description());
     billing.setValue(billingRequestDTO.value());
-    billing.setReciever(reciever);
+    billing.setReceiver(receiver);
     billing.setSender(sender);
 
     billingRepository.save(billing);
@@ -67,7 +68,7 @@ public class BillingService {
   public List<BillingResponseDTO> getBillingByUserId(Integer userId, StatusCobranca status, boolean isSender) {
     Supplier<Optional<List<Billing>>> query = isSender
         ? () -> billingRepository.findBySenderIdAndStatusOptional(userId, status)
-        : () -> billingRepository.findByRecieverIdAndStatusOptional(userId, status);
+        : () -> billingRepository.findByReceiverIdAndStatusOptional(userId, status);
 
     List<Billing> billings = query.get().orElseThrow(() -> new EntityNotFoundException("Nenhuma cobrança encontrada para o usuário com ID: " + userId));
     
@@ -83,7 +84,7 @@ public class BillingService {
           ));
 
       // O usuário logado é o recebedor da cobrança (quem vai pagar)
-      if (!billing.getReciever().getId().equals(userId)) {
+      if (!billing.getReceiver().getId().equals(userId)) {
           throw new IllegalArgumentException("Usuário não autorizado a processar este pagamento.");
       }
 
@@ -147,5 +148,66 @@ public class BillingService {
       accountRepository.save(receiverAccount);
 
       return PaymentResponseDTO.from(statusResponse, statusMessage, paymentRequestDTO.paymentMethod());
+  }
+
+  @Transactional
+  public CancelResponseDTO cancelBilling(Integer userId, Integer billingId) {
+    Billing billing = billingRepository.findById(billingId)
+          .orElseThrow(() -> new EntityNotFoundException(
+              "Cobrança não encontrada com ID: " + billingId
+          ));
+
+		Payment payment = paymentRepository.findByBillingId(billingId).orElse(null);
+
+		if (!(billing.getSender().getId().equals(userId) || billing.getReceiver().getId().equals(userId))) {
+			throw new IllegalArgumentException("Usuário não autorizado a cancelar esta cobrança.");
+		}
+
+		if (billing.getStatus() == StatusCobranca.CANCELADA) {
+			throw new IllegalArgumentException("Cobrança já foi cancelada.");
+		} 
+
+		if (billing.getStatus() == StatusCobranca.PENDENTE) {
+			billing.setStatus(StatusCobranca.CANCELADA);
+			billingRepository.save(billing);
+			return CancelResponseDTO.from(billing.getStatus(), "Cobrança pendente cancelada com sucesso.", billingId);
+    }
+
+		if (billing.getStatus() == StatusCobranca.PAGA && payment != null) {
+			Account senderAccount = accountRepository.findByUserId(billing.getSender().getId())
+							.orElseThrow(() -> new EntityNotFoundException(
+									"Conta do remetente não encontrada"
+							));
+							
+			if (payment.getPaymentMethod() == PaymentMethods.SALDO) {
+					Account payerAccount = accountRepository.findByUserId(billing.getReceiver().getId())
+							.orElseThrow(() -> new EntityNotFoundException(
+									"Conta do pagador não encontrada para estorno."
+							));
+
+					payerAccount.setBalance(payerAccount.getBalance().add(billing.getValue()));
+					senderAccount.setBalance(senderAccount.getBalance().subtract(billing.getValue()));
+					accountRepository.save(payerAccount);
+					accountRepository.save(senderAccount);
+
+					payment.setCancelled(true);
+			} else if (payment.getPaymentMethod() == PaymentMethods.CARTAO) {
+				boolean approved = paymentValidator.validateOperation();
+				if (!approved) {
+					throw new IllegalArgumentException("Falha ao validar estorno do pagamento via cartão.");
+				}
+
+				senderAccount.setBalance(senderAccount.getBalance().subtract(billing.getValue()));
+				accountRepository.save(senderAccount);
+
+				payment.setCancelled(true);
+			}
+			
+			billing.setStatus(StatusCobranca.CANCELADA);
+			billingRepository.save(billing);
+			paymentRepository.save(payment);
+			return CancelResponseDTO.from(billing.getStatus(), "Cobrança paga cancelada e estorno realizado com sucesso.", billingId);
+		}
+		throw new IllegalArgumentException("Estado da cobrança não permite cancelamento.");
   }
 }
