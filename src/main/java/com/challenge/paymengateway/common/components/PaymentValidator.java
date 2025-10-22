@@ -11,7 +11,7 @@ public class PaymentValidator {
       this.webClient = paymentValidatorWebClient;
     }
 
-    public boolean validateDeposit() {
+    public boolean validateOperation() {
       try {
         ValidatorResponse response = webClient.get()
                 .retrieve()

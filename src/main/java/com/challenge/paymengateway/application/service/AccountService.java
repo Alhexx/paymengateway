@@ -37,7 +37,7 @@ public class AccountService {
       Account account = accountRepository.findByUserId(userId)
         .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada para o usuário ID: " + userId));
 
-      boolean approved = paymentValidator.validateDeposit();
+      boolean approved = paymentValidator.validateOperation();
       if (!approved) {
         throw new IllegalArgumentException("Depósito não aprovado pelo autorizador externo");
       }

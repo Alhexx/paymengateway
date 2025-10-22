@@ -15,6 +15,7 @@ import com.challenge.paymengateway.application.dto.DepositResponseDTO;
 import com.challenge.paymengateway.application.service.AccountService;
 import com.challenge.paymengateway.config.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 
@@ -28,12 +29,14 @@ public class AccountController {
   }
 
   @GetMapping("/")
+  @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<AccountResponseDTO> getAccountByUser(@AuthenticationPrincipal UserDetailsImpl user) {
     AccountResponseDTO responseDTO = accountService.getAccountByUserId(user.getId());
     return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
   }
 
   @PostMapping("/deposit")
+  @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<DepositResponseDTO> deposit(@AuthenticationPrincipal UserDetailsImpl user, @Valid @RequestBody DepositRequestDTO dto) {
     DepositResponseDTO response = accountService.deposit(user.getId(), dto);
     return ResponseEntity.ok(response);
