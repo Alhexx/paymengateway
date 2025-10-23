@@ -84,8 +84,8 @@ public class BillingService {
           ));
 
       // O usuário logado é o criador da cobrança (quem vai receber)
-      if (!billing.getSender().getId().equals(userId)) {
-          throw new IllegalArgumentException("Usuário não autorizado a processar este pagamento.");
+      if (billing.getSender().getId().equals(userId)) {
+          throw new IllegalArgumentException("Usuário não autorizado a fazer este pagamento.");
       }
 
       if (billing.getStatus() == StatusCobranca.PAGA) {

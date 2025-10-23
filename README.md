@@ -7,7 +7,7 @@ Api desenvolvida em **Java 21** com **Spring Boot 3.5.6**, simulando um sistema 
 - Clone o repositório:
 
 ```bash
-git clone https://github.com/Alhexx/application-taferas.git
+git clone https://github.com/Alhexx/paymengateway
 ```
 
 ## Configuração do Backend (Spring Boot)
@@ -124,7 +124,20 @@ docker compose up -d --build
 }
 ```
 
-### 6 Listagem de cobranças
+### 5 Login com doisberto:
+
+- Pela rota `/auth`
+
+```json
+{
+  "emailOrCpf": "57831242066",
+  "password": "teste123!"
+}
+```
+
+- Após o login clique no cadeado do swagger e copie o token retornado para lá
+
+### 7 Listagem de cobranças
 
 - Pela rota `/billings/sender`
 
@@ -138,7 +151,7 @@ docker compose up -d --build
 
   ![alt text](public/image2.png)
 
-### 7 Pagamento de cobranças
+### 8 Pagamento de cobranças
 
 - Pela rota `/billings/pay`
 
@@ -146,7 +159,7 @@ docker compose up -d --build
 
   ```json
   {
-    "billingId": 1,
+    "billingId": 2,
     "paymentMethod": "CARTAO",
     "cardNumber": "4111111111111111",
     "cvv": "123",
@@ -158,12 +171,12 @@ docker compose up -d --build
 
   ```json
   {
-    "billingId": 2,
+    "billingId": 1,
     "paymentMethod": "SALDO"
   }
   ```
 
-### 8 Cancelar pagamento
+### 9 Cancelar pagamento
 
 - Pela rota `/billings/{billing_id}/cancel`
 
@@ -184,3 +197,8 @@ docker compose up -d --build
 - Arquitetura baseada em camadas inspirada em DDD
 
 - Commits e escrita do código em inglês, mas erros todos em português
+
+## Testes Unitários
+
+- Foco dos testes foi em apenas algumas funcionalidades dos services, sem foco em chegar a 100% de coverage
+  ![alt text](public/image4.png)

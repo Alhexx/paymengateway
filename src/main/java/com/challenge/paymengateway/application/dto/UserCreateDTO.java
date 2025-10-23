@@ -17,6 +17,13 @@ public class UserCreateDTO {
   @NotBlank(message = "A senha é obrigatória")
   private String password;
 
+  public UserCreateDTO(String name, String email, String cpf, String password) {
+    this.name = name;
+    this.email = email;
+    this.cpf = cpf;
+    this.password = password;
+  }
+
   public String getName() {
     return name;
   }
