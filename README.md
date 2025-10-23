@@ -2,6 +2,39 @@
 
 Api desenvolvida em **Java 21** com **Spring Boot 3.5.6**, simulando um sistema de pagamentos com validação externa.
 
+## Arquitetura do projeto
+
+<pre><small>
++---src
+    +---main
+    |+---java
+    | \---com
+    |   \---challenge
+    |     \---paymengateway
+    |        |   PaymengatewayApplication.java  # Classe principal do Spring Boot
+    |        |
+    |        +---application
+    |        |   +---controller    # Recebe requisições HTTP e retorna respostas
+    |        |   +---dto           # Objetos de transferência de dados
+    |        |   +---model         # Entidades do domínio (User, Account, Billing, Payment)
+    |        |   +---repository    # Acesso e manipulação de dados no banco
+    |        |   \---service       # Lógica de negócio e regras do sistema
+    |        |
+    |        +---common
+    |        |   +---components    # Componentes auxiliares (ex: PaymentValidator)
+    |        |   +---enums         # Enums do domínio (PaymentMethods, StatusCobranca)
+    |        |   +---exceptions    # Tratamento de exceções globais e específicas
+    |        |   \---utils          # Funções utilitárias (ex: CPFUtils)
+    |        |
+    |        \---config
+    |            +---security        # JWT, filtros e serviços de autenticação
+    |            +---SwaggerConfig.java   # Configuração do Swagger
+    |            +---CorsConfig.java  # Configuração de CORS
+    |            \---WebClientConfig.java  # Configuração de chamadas HTTP externas
+</small></pre>
+
+- A titulo de curiosidade, para gerar essa arvore basta usar o comando `tree /F /A`
+
 ## Pré-requisitos
 
 - Clone o repositório:
@@ -190,7 +223,7 @@ docker compose up -d --build
 
 - Api consta com validação de CPF
 
-- Api consta com tratamento de excções, experadas e inesperadas
+- Api consta com tratamento de exceções, experadas e inesperadas
 
 - JWT implementado, token expirando 10 minutos, por padrão
 
