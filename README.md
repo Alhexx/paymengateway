@@ -49,13 +49,13 @@ git clone https://github.com/Alhexx/paymengateway
 
 1. Configuração de um `.env`:
 
-   - Crie um arquivo `.env` e preencha com:
+   - Crie um arquivo `.env` e preencha com, por exemplo:
 
      ```docker
        # Banco de dados
        SPRING_DATASOURCE_USERNAME=postgres
        SPRING_DATASOURCE_PASSWORD=postgres
-       SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/paymentgateway
+       SPRING_DATASOURCE_URL=jdbc:postgresql://{nomedocontainer}:5432/paymentgateway
 
        # JWT
        SECURITY_JWT_SECRET=secret-de-testes-para-localhostt
@@ -64,7 +64,7 @@ git clone https://github.com/Alhexx/paymengateway
        EXTERNAL_PAYMENT_VALIDATOR_URL=https://zsy6tx7aql.execute-api.sa-east-1.amazonaws.com/authorizer
      ```
 
-2. Execute o Docker compose para ter um container do postgres já configurado para a aplicação:
+2. Execute o Docker compose para ter a aplicação completa rodando:
 
 ```bash
 docker compose up -d --build
