@@ -83,8 +83,8 @@ public class BillingService {
               "Cobrança não encontrada com ID: " + paymentRequestDTO.billingId()
           ));
 
-      // O usuário logado é o recebedor da cobrança (quem vai pagar)
-      if (!billing.getReceiver().getId().equals(userId)) {
+      // O usuário logado é o criador da cobrança (quem vai receber)
+      if (!billing.getSender().getId().equals(userId)) {
           throw new IllegalArgumentException("Usuário não autorizado a processar este pagamento.");
       }
 
